@@ -17,8 +17,10 @@ public class AuthController : ControllerBase
         _context = context;
     }
 
+    [HttpPost("verificar-versao")]
     [HttpPost("check-version")]
-    public async Task<IActionResult> CheckVersion(CheckVersionRequest request)
+    [HttpPost("verificar-versão")]
+    public async Task<IActionResult> VerificarVersao([FromBody] CheckVersionRequest request)
     {
         var product = await _context.Products
             .FirstOrDefaultAsync(p => p.Name == request.Product && p.IsActive);
