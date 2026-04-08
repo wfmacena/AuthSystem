@@ -1,16 +1,19 @@
-# Build
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-WORKDIR /app
+# BUILD
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
 
-COPY . ./
+COPY ./AuthApi ./AuthApi
+WORKDIR /src/AuthApi
+
 RUN dotnet restore
-RUN dotnet publish -c Release -o out
+RUN dotnet publish -c Release -o /app/out
 
-# Runtime
-FROM mcr.microsoft.com/dotnet/aspnet:8.0
+# RUNTIME
+FROM mcr.microsoft.com/dotnet/aspnet:10.0
 WORKDIR /app
-COPY --from=build /app/out .
 
+ENV ASPNETCORE_URLS=http://+:8080
 EXPOSE 8080
 
+COPY --from=build /app/out .
 ENTRYPOINT ["dotnet", "AuthApi.dll"]
