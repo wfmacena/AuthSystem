@@ -22,52 +22,16 @@ public class AuthController : ControllerBase
     [HttpPost("verificar-versão")]
     public async Task<IActionResult> VerificarVersao([FromBody] CheckVersionRequest request)
     {
-        var productName = request.Product?.Trim();
-        var version = request.Version?.Trim();
-
-        if (string.IsNullOrWhiteSpace(productName))
-        {
-            return BadRequest(new
-            {
-                success = false,
-                error = "Produto vazio",
-                receivedProduct = request.Product,
-                receivedVersion = request.Version
-            });
-        }
-
         var product = await _context.Products
-            .FirstOrDefaultAsync(p =>
-                p.Name.ToLower() == productName.ToLower() &&
-                p.IsActive);
+            .FirstOrDefaultAsync(p => p.Name == request.Product && p.IsActive);
 
         if (product == null)
-        {
-            return BadRequest(new
-            {
-                success = false,
-                error = "Produto inválido",
-                receivedProduct = request.Product,
-                normalizedProduct = productName
-            });
-        }
+            return BadRequest(new { success = false, error = "Produto inválido" });
 
-        if (product.RequiredVersion != version)
-        {
-            return Ok(new
-            {
-                success = false,
-                requiredVersion = product.RequiredVersion,
-                receivedVersion = version
-            });
-        }
+        if (product.RequiredVersion != request.Version)
+            return Ok(new { success = false, requiredVersion = product.RequiredVersion });
 
-        return Ok(new
-        {
-            success = true,
-            receivedProduct = productName,
-            receivedVersion = version
-        });
+        return Ok(new { success = true });
     }
 
     [HttpPost("auth")]
